@@ -10,130 +10,162 @@ namespace MatrixCalculator.UI
     {
         private DataGridView _dgvBasisE;
         private DataGridView _dgvBasisF;
-        private Button _btnCalcTransition;
-        private TextBox _txtBasisResult;
-        private TextBox _txtVecX;
-        private TextBox _txtVecY;
-        private TextBox _txtVecZ;
+        private Button _btnCalc;
+        private TextBox _txtResult;
+        private TextBox _txtVecX, _txtVecY, _txtVecZ;
 
-        public BasisTab() : base("Базисы и переходы")
+        public BasisTab() : base("Базисы")
         {
+            BackColor = AppTheme.Background;
             AutoScroll = true;
             InitializeComponent();
         }
 
         private void InitializeComponent()
         {
+            // Description
             var lblInfo = new Label
             {
-                Text = "Введите базис E(по умолчанию единичный) и базис F. Будет найдена матрица перехода и координаты.",
-                Location = new Point(20, 20),
-                Width = 600,
-                Height = 40
+                Text = "Матрица перехода между базисами и перевод координат вектора.",
+                Font = AppTheme.LabelFont,
+                ForeColor = AppTheme.TextMuted,
+                AutoSize = true,
+                Location = new Point(24, 20)
             };
 
-            _dgvBasisE = CreateGrid(20, 70, 3, 3, "Базис E (Столбцы - векторы)");
-            _dgvBasisF = CreateGrid(400, 70, 3, 3, "Базис F (Столбцы - векторы)");
+            // ── Basis grids ────────────────────────────────────────────────────
+            Controls.Add(AppTheme.MakeSectionLabel("Базис E  (столбцы — векторы)", 24, 46));
+            Controls.Add(AppTheme.MakeSectionLabel("Базис F  (столбцы — векторы)", 410, 46));
 
-            var lblVecCoords = new Label { Text = "Вектор для перевода (координаты в базисе E):", Location = new Point(20, 380), Width = 300 };
-            _txtVecX = new TextBox { Location = new Point(20, 410), Width = 60, Text = "1" };
-            _txtVecY = new TextBox { Location = new Point(90, 410), Width = 60, Text = "0" };
-            _txtVecZ = new TextBox { Location = new Point(160, 410), Width = 60, Text = "0" };
+            _dgvBasisE = CreateGrid(24, 66);
+            _dgvBasisF = CreateGrid(410, 66);
 
-            _btnCalcTransition = new Button { Text = "Найти матрицу перехода и новые координаты", Location = new Point(20, 460), Width = 350, Height = 40 };
-            _btnCalcTransition.Click += BtnCalcTransition_Click;
-
-            _txtBasisResult = new TextBox
+            // Arrow indicator
+            var arrow = new Label
             {
-                Location = new Point(20, 520),
-                Width = 700,
-                Height = 200,
-                Multiline = true,
-                ReadOnly = true
+                Text = "→",
+                Font = new Font("Consolas", 24F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(40, AppTheme.Accent),
+                AutoSize = true,
+                Location = new Point(348, 130)
             };
+
+            // ── Vector input ───────────────────────────────────────────────────
+            Controls.Add(AppTheme.MakeSectionLabel("Вектор в базисе E", 24, 270));
+
+            var vecCard = AppTheme.MakeCard(24, 290, 360, 80);
+            var lblX = new Label { Text = "X", Font = new Font("Consolas", 9F, FontStyle.Bold), ForeColor = AppTheme.Accent, AutoSize = true, Location = new Point(14, 28) };
+            _txtVecX = MakeInput(36, 24, "1");
+            var lblY = new Label { Text = "Y", Font = new Font("Consolas", 9F, FontStyle.Bold), ForeColor = AppTheme.Accent, AutoSize = true, Location = new Point(120, 28) };
+            _txtVecY = MakeInput(142, 24, "0");
+            var lblZ = new Label { Text = "Z", Font = new Font("Consolas", 9F, FontStyle.Bold), ForeColor = AppTheme.Accent, AutoSize = true, Location = new Point(226, 28) };
+            _txtVecZ = MakeInput(248, 24, "0");
+            vecCard.Controls.AddRange(new Control[] { lblX, _txtVecX, lblY, _txtVecY, lblZ, _txtVecZ });
+
+            _btnCalc = AppTheme.MakePrimaryButton("▶  НАЙТИ МАТРИЦУ ПЕРЕХОДА", 24, 384, 360, 42);
+            _btnCalc.Click += BtnCalc_Click;
+
+            // ── Result ─────────────────────────────────────────────────────────
+            var resultCard = AppTheme.MakeCard(24, 442, 760, 280, "Результат");
+            _txtResult = AppTheme.MakeResultBox(12, 30, 734, 240);
+            resultCard.Controls.Add(_txtResult);
 
             Controls.AddRange(new Control[] {
-                lblInfo, _dgvBasisE, _dgvBasisF, lblVecCoords, _txtVecX, _txtVecY, _txtVecZ,
-                _btnCalcTransition, _txtBasisResult
+                lblInfo, _dgvBasisE, arrow, _dgvBasisF,
+                vecCard, _btnCalc, resultCard
             });
         }
 
-        private DataGridView CreateGrid(int x, int y, int rows, int cols, string name)
+        private DataGridView CreateGrid(int x, int y)
         {
             var dgv = new DataGridView
             {
                 Location = new Point(x, y),
-                Width = cols * 60 + 50,
-                Height = rows * 30 + 40,
+                Width = 3 * 62 + 42,
+                Height = 3 * 28 + 30,
                 AllowUserToAddRows = false,
                 RowHeadersVisible = true,
-                ColumnHeadersVisible = true
+                ScrollBars = ScrollBars.None
             };
 
-            for (int i = 0; i < cols; i++)
-            {
-                var col = new DataGridViewTextBoxColumn
+            for (int i = 0; i < 3; i++)
+                dgv.Columns.Add(new DataGridViewTextBoxColumn
                 {
-                    HeaderText = (i < 3) ? $"{(char)('X' + i)}" : $"Col{i + 1}",
-                    Width = 55,
+                    HeaderText = $"e{i + 1}",
+                    Width = 58,
                     SortMode = DataGridViewColumnSortMode.NotSortable
-                };
-                dgv.Columns.Add(col);
-            }
+                });
 
-            for (int i = 0; i < rows; i++)
-                dgv.Rows.Add();
-
+            for (int i = 0; i < 3; i++) dgv.Rows.Add();
+            AppTheme.StyleGrid(dgv);
             return dgv;
         }
 
-        private void BtnCalcTransition_Click(object? sender, EventArgs e)
+        private TextBox MakeInput(int x, int y, string val)
+        {
+            return new TextBox
+            {
+                Location = new Point(x, y),
+                Width = 72,
+                Text = val,
+                BackColor = AppTheme.InputBg,
+                ForeColor = AppTheme.TextPrimary,
+                Font = AppTheme.MonoFont,
+                BorderStyle = BorderStyle.FixedSingle
+            };
+        }
+
+        private void BtnCalc_Click(object? sender, EventArgs e)
         {
             try
             {
-                var E = GetMatrixFromGrid(_dgvBasisE);
-                var F = GetMatrixFromGrid(_dgvBasisF);
+                var E = GetMatrix(_dgvBasisE);
+                var F = GetMatrix(_dgvBasisF);
 
-                // Матрица перехода от E к F: P = E^-1 * F (если E единичный, то просто F)
-                // Если вектор задан в старом (E), то X_new = P^-1 * X_old, где P - матрица из новых базисных векторов в столбцах.
-
-                var P = F; // Считаем, что E - единичный для простоты, или P = E.Inverse() * F
-                if (Math.Abs(E.Determinant() - 1.0) > 1e-9 && E.Determinant() != 0.0)
-                {
-                    // Общая формула: [F] = [E] * P => P = [E]^-1 * [F]
+                Matrix P;
+                if (Math.Abs(E.Determinant() - 1.0) > 1e-9 && Math.Abs(E.Determinant()) > 1e-9)
                     P = E.Inverse() * F;
-                }
+                else
+                    P = F;
 
                 double vx = double.Parse(_txtVecX.Text);
                 double vy = double.Parse(_txtVecY.Text);
                 double vz = double.Parse(_txtVecZ.Text);
+                var old = new double[] { vx, vy, vz };
 
-                var oldCoords = new double[] { vx, vy, vz };
-                // Новые координаты: X_new = P^-1 * X_old
                 var P_inv = P.Inverse();
-                
-                // Умножение матрицы на вектор вручную (P_inv * oldCoords)
                 var newCoords = new double[3];
                 for (int i = 0; i < 3; i++)
-                {
-                    newCoords[i] = 0;
                     for (int j = 0; j < 3; j++)
-                    {
-                        newCoords[i] += P_inv[i, j] * oldCoords[j];
-                    }
-                }
+                        newCoords[i] += P_inv[i, j] * old[j];
 
-                _txtBasisResult.Text = $"Матрица перехода P (от E к F):\n{P}\n\n" +
-                                      $"Координаты вектора в новом базисе:\n" +
-                                      $"x' = {newCoords[0]:F4}\ny' = {newCoords[1]:F4}\nz' = {newCoords[2]:F4}";
+                var sb = new System.Text.StringBuilder();
+                sb.AppendLine("Матрица перехода P  (от E к F):\n");
+                for (int i = 0; i < P.Rows; i++)
+                {
+                    sb.Append("│");
+                    for (int j = 0; j < P.Cols; j++)
+                        sb.Append($"  {P[i, j],9:F4}");
+                    sb.AppendLine("  │");
+                }
+                sb.AppendLine($"\nКоординаты вектора в новом базисе F:\n");
+                sb.AppendLine($"  x'  =  {newCoords[0]:F6}");
+                sb.AppendLine($"  y'  =  {newCoords[1]:F6}");
+                sb.AppendLine($"  z'  =  {newCoords[2]:F6}");
+
+                _txtResult.ForeColor = AppTheme.Accent;
+                _txtResult.Text = sb.ToString();
             }
-            catch (Exception ex) { _txtBasisResult.Text = "Ошибка: " + ex.Message; }
+            catch (Exception ex)
+            {
+                _txtResult.ForeColor = AppTheme.Danger;
+                _txtResult.Text = "⚠  " + ex.Message;
+            }
         }
 
-        private Matrix GetMatrixFromGrid(DataGridView dgv)
+        private Matrix GetMatrix(DataGridView dgv)
         {
-            int r = dgv.Rows.Count;
-            int c = dgv.Columns.Count;
+            int r = dgv.Rows.Count, c = dgv.Columns.Count;
             var m = new Matrix(r, c);
             for (int i = 0; i < r; i++)
                 for (int j = 0; j < c; j++)

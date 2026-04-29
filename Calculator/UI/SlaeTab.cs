@@ -1,5 +1,4 @@
 using Calculator.Core;
-using MatrixCalculator.UI;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -10,183 +9,201 @@ namespace MatrixCalculator.UI
     {
         private NumericUpDown _numRows;
         private NumericUpDown _numCols;
-        private DataGridView _dgvSlaeCoeffs;
-        private DataGridView _dgvSlaeFree;
-        private ComboBox _cbSlaeMethod;
-        private Button _btnCalcSlae;
-        private TextBox _txtSlaeResult;
+        private DataGridView _dgvCoeffs;
+        private DataGridView _dgvFree;
+        private ComboBox _cbMethod;
+        private Button _btnCalc;
+        private TextBox _txtResult;
 
         public SlaeTab() : base("СЛАУ")
         {
+            BackColor = AppTheme.Background;
             InitializeComponent();
         }
 
         private void InitializeComponent()
         {
-            var lblRows = new Label { Text = "Кол-во строк:", Location = new Point(20, 20), Width = 100 };
-            _numRows = new NumericUpDown { Location = new Point(120, 18), Width = 50, Minimum = 1, Maximum = 10, Value = 3 };
+            // ── Size controls ──────────────────────────────────────────────────
+            Controls.Add(AppTheme.MakeSectionLabel("Система уравнений", 24, 20));
 
-            var lblCols = new Label { Text = "Кол-во столбцов (неизвестных):", Location = new Point(180, 20), Width = 140 };
-            _numCols = new NumericUpDown { Location = new Point(330, 18), Width = 50, Minimum = 1, Maximum = 10, Value = 3 };
+            var lblRows = new Label { Text = "Уравнений", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(24, 44) };
+            _numRows = MakeSpinner(110, 40, 3);
+            var lblCols = new Label { Text = "Неизвестных", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(178, 44) };
+            _numCols = MakeSpinner(272, 40, 3);
 
-            var btnInit = new Button { Text = "Создать", Location = new Point(390, 15), Width = 80, Height = 30 };
+            var btnInit = AppTheme.MakeSecondaryButton("СОЗДАТЬ", 338, 37, 110, 30);
             btnInit.Click += (s, e) => ResizeGrids((int)_numRows.Value, (int)_numCols.Value);
 
-            _dgvSlaeCoeffs = CreateGrid(20, 60, 3, 3, "Коэфф.");
-            _dgvSlaeFree = CreateGrid(350, 60, 3, 1, "Свободные");
+            // ── Grids ──────────────────────────────────────────────────────────
+            Controls.Add(AppTheme.MakeSectionLabel("Коэффициенты  [A]", 24, 84));
+            Controls.Add(AppTheme.MakeSectionLabel("Свободные  [b]", 340, 84));
 
-            _cbSlaeMethod = new ComboBox
+            _dgvCoeffs = CreateGrid(24, 104, 3, 3);
+            _dgvFree   = CreateGrid(340, 104, 3, 1);
+
+            // ── Method ─────────────────────────────────────────────────────────
+            Controls.Add(AppTheme.MakeSectionLabel("Метод решения", 24, 316));
+
+            _cbMethod = new ComboBox
             {
-                Location = new Point(20, 350),
-                Width = 350,
-                DropDownStyle = ComboBoxStyle.DropDownList
+                Location = new Point(24, 336),
+                Width = 400,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                BackColor = AppTheme.InputBg,
+                ForeColor = AppTheme.TextPrimary,
+                Font = AppTheme.MonoFont,
+                FlatStyle = FlatStyle.Flat
             };
             UpdateMethodList();
-            _cbSlaeMethod.SelectedIndexChanged += (s, e) => { };
-            _cbSlaeMethod.SelectedIndex = 0;
+            _cbMethod.SelectedIndex = 0;
 
-            _btnCalcSlae = new Button { Text = "Решить", Location = new Point(20, 390), Width = 350, Height = 40 };
-            _btnCalcSlae.Click += BtnCalcSlae_Click;
+            _btnCalc = AppTheme.MakePrimaryButton("▶  РЕШИТЬ СИСТЕМУ", 24, 386, 400, 42);
+            _btnCalc.Click += BtnCalc_Click;
 
-            _txtSlaeResult = new TextBox
-            {
-                Location = new Point(20, 450),
-                Width = 660,
-                Height = 150,
-                Multiline = true,
-                ReadOnly = true
-            };
+            // ── Result ─────────────────────────────────────────────────────────
+            var resultCard = AppTheme.MakeCard(24, 446, 840, 340, "Решение");
+            _txtResult = AppTheme.MakeResultBox(12, 30, 814, 300);
+            resultCard.Controls.Add(_txtResult);
 
             Controls.AddRange(new Control[] {
-                lblRows, _numRows, lblCols, _numCols, btnInit, _dgvSlaeCoeffs, _dgvSlaeFree,
-                _cbSlaeMethod, _btnCalcSlae, _txtSlaeResult
+                lblRows, _numRows, lblCols, _numCols, btnInit,
+                _dgvCoeffs, _dgvFree, _cbMethod, _btnCalc, resultCard
             });
+        }
+
+        private NumericUpDown MakeSpinner(int x, int y, int val)
+        {
+            return new NumericUpDown
+            {
+                Location = new Point(x, y),
+                Width = 52,
+                Minimum = 1,
+                Maximum = 10,
+                Value = val,
+                BackColor = AppTheme.InputBg,
+                ForeColor = AppTheme.TextPrimary,
+                Font = AppTheme.MonoFont,
+                BorderStyle = BorderStyle.FixedSingle
+            };
+        }
+
+        private DataGridView CreateGrid(int x, int y, int rows, int cols)
+        {
+            var dgv = new DataGridView
+            {
+                Location = new Point(x, y),
+                Width = cols * 62 + 42,
+                Height = rows * 28 + 30,
+                AllowUserToAddRows = false,
+                RowHeadersVisible = true,
+                ScrollBars = ScrollBars.None
+            };
+
+            for (int i = 0; i < cols; i++)
+                dgv.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    HeaderText = cols == 1 ? "b" : $"x{i + 1}",
+                    Width = 58,
+                    SortMode = DataGridViewColumnSortMode.NotSortable
+                });
+
+            for (int i = 0; i < rows; i++) dgv.Rows.Add();
+            AppTheme.StyleGrid(dgv);
+            return dgv;
         }
 
         private void UpdateMethodList()
         {
             int rows = (int)_numRows.Value;
             int cols = (int)_numCols.Value;
-
-            _cbSlaeMethod.Items.Clear();
-            _cbSlaeMethod.Items.Add("Метод Гаусса (с шагами)");
-
-            // Методы Крамера и матричный метод доступны только для квадратных систем
+            _cbMethod.Items.Clear();
+            _cbMethod.Items.Add("Метод Гаусса  (с шагами)");
             if (rows == cols)
             {
-                _cbSlaeMethod.Items.Add("Метод Крамера");
-                _cbSlaeMethod.Items.Add("Матричный метод");
+                _cbMethod.Items.Add("Метод Крамера");
+                _cbMethod.Items.Add("Матричный метод  (A⁻¹·b)");
             }
             else
             {
-                _cbSlaeMethod.Items.Add($"Метод Крамера (только для квадратных {cols}x{cols})");
-                _cbSlaeMethod.Items.Add($"Матричный метод (только для квадратных {cols}x{cols})");
+                _cbMethod.Items.Add($"Метод Крамера  [только {cols}×{cols}]");
+                _cbMethod.Items.Add($"Матричный метод  [только {cols}×{cols}]");
             }
-
-            _cbSlaeMethod.SelectedIndex = 0;
-        }
-
-        private DataGridView CreateGrid(int x, int y, int rows, int cols, string name)
-        {
-            var dgv = new DataGridView
-            {
-                Location = new Point(x, y),
-                Width = cols * 60 + 50,
-                Height = rows * 30 + 40,
-                AllowUserToAddRows = false,
-                RowHeadersVisible = true,
-                ColumnHeadersVisible = true
-            };
-
-            for (int i = 0; i < cols; i++)
-            {
-                var col = new DataGridViewTextBoxColumn
-                {
-                    HeaderText = (i < 3) ? $"{(char)('X' + i)}" : $"Col{i + 1}",
-                    Width = 55,
-                    SortMode = DataGridViewColumnSortMode.NotSortable
-                };
-                dgv.Columns.Add(col);
-            }
-
-            for (int i = 0; i < rows; i++)
-                dgv.Rows.Add();
-
-            return dgv;
+            _cbMethod.SelectedIndex = 0;
         }
 
         private void ResizeGrids(int rows, int cols)
         {
-            UpdateGridSize(_dgvSlaeCoeffs, rows, cols);
-            UpdateGridSize(_dgvSlaeFree, rows, 1);
+            RebuildGrid(_dgvCoeffs, rows, cols, false);
+            RebuildGrid(_dgvFree, rows, 1, true);
+            UpdateMethodList();
         }
 
-        private void UpdateGridSize(DataGridView dgv, int rows, int cols)
+        private void RebuildGrid(DataGridView dgv, int rows, int cols, bool isFree)
         {
             dgv.Rows.Clear();
             dgv.Columns.Clear();
             for (int i = 0; i < cols; i++)
-                dgv.Columns.Add(new DataGridViewTextBoxColumn { Width = 55, SortMode = DataGridViewColumnSortMode.NotSortable });
-            for (int i = 0; i < rows; i++)
-                dgv.Rows.Add();
+                dgv.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    HeaderText = isFree ? "b" : $"x{i + 1}",
+                    Width = 58,
+                    SortMode = DataGridViewColumnSortMode.NotSortable
+                });
+            for (int i = 0; i < rows; i++) dgv.Rows.Add();
+            dgv.Width  = cols * 62 + 42;
+            dgv.Height = rows * 28 + 30;
         }
 
-        private void BtnCalcSlae_Click(object? sender, EventArgs e)
+        private void BtnCalc_Click(object? sender, EventArgs e)
         {
             try
             {
-                var A = GetMatrixFromGrid(_dgvSlaeCoeffs);
-                var B = GetMatrixFromGrid(_dgvSlaeFree);
-                var bVec = new double[B.Rows];
-                for (int i = 0; i < B.Rows; i++) bVec[i] = B[i, 0];
+                var A = GetMatrix(_dgvCoeffs);
+                var B = GetMatrix(_dgvFree);
+                var b = new double[B.Rows];
+                for (int i = 0; i < B.Rows; i++) b[i] = B[i, 0];
 
-                string method = _cbSlaeMethod.SelectedItem?.ToString() ?? "";
-                string resultText = "";
+                string method = _cbMethod.SelectedItem?.ToString()?.Trim() ?? "";
 
-                // Проверяем, выбран ли метод для неквадратной системы
-                if ((method.Contains("только для квадратных")) && (_numRows.Value != _numCols.Value))
+                if (method.Contains('[') && _numRows.Value != _numCols.Value)
                 {
-                    _txtSlaeResult.Text = "Ошибка: выбранный метод применим только к квадратным системам. Используйте метод Гаусса.";
+                    ShowError("Этот метод применим только к квадратным системам. Используйте метод Гаусса.");
                     return;
                 }
 
-                if (method == "Метод Гаусса (с шагами)" || method.StartsWith("Метод Гаусса"))
+                string result = method switch
                 {
-                    resultText = SlaeSolver.SolveGaussWithSteps(A, bVec);
-                }
-                else if (method == "Метод Крамера")
-                {
-                    var x = SlaeSolver.SolveCramer(A, bVec);
-                    resultText = FormatSolution(x);
-                }
-                else if (method == "Матричный метод")
-                {
-                    var x = SlaeSolver.SolveInverse(A, bVec);
-                    resultText = FormatSolution(x);
-                }
-                else
-                {
-                    // По умолчанию используем метод Гаусса
-                    resultText = SlaeSolver.SolveGaussWithSteps(A, bVec);
-                }
+                    var m when m.StartsWith("Метод Гаусса") => SlaeSolver.SolveGaussWithSteps(A, b),
+                    "Метод Крамера"                          => FormatSolution(SlaeSolver.SolveCramer(A, b)),
+                    var m when m.StartsWith("Матричный")     => FormatSolution(SlaeSolver.SolveInverse(A, b)),
+                    _                                         => SlaeSolver.SolveGaussWithSteps(A, b)
+                };
 
-                _txtSlaeResult.Text = resultText;
+                _txtResult.ForeColor = AppTheme.Accent;
+                _txtResult.Text = result;
             }
-            catch (Exception ex) { _txtSlaeResult.Text = "Ошибка: " + ex.Message; }
+            catch (Exception ex) { ShowError(ex.Message); }
         }
 
         private string FormatSolution(double[] x)
         {
-            var res = "";
-            for (int i = 0; i < x.Length; i++) res += $"x{i + 1} = {x[i]:F4}\n";
-            return res;
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("Решение системы:\n");
+            for (int i = 0; i < x.Length; i++)
+                sb.AppendLine($"  x{i + 1}  =  {x[i]:F6}");
+            return sb.ToString();
         }
 
-        private Matrix GetMatrixFromGrid(DataGridView dgv)
+        private void ShowError(string msg)
         {
-            int r = dgv.Rows.Count;
-            int c = dgv.Columns.Count;
-            var m = new Matrix(r, c);
+            _txtResult.ForeColor = AppTheme.Danger;
+            _txtResult.Text = "⚠  " + msg;
+        }
+
+        private Calculator.Core.Matrix GetMatrix(DataGridView dgv)
+        {
+            int r = dgv.Rows.Count, c = dgv.Columns.Count;
+            var m = new Calculator.Core.Matrix(r, c);
             for (int i = 0; i < r; i++)
                 for (int j = 0; j < c; j++)
                     m[i, j] = double.Parse(dgv.Rows[i].Cells[j].Value?.ToString() ?? "0");
