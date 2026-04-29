@@ -54,7 +54,8 @@ namespace MatrixCalculator.UI
                 Width = 660,
                 Height = 150,
                 Multiline = true,
-                ReadOnly = true
+                ReadOnly = true,
+                ScrollBars = ScrollBars.Vertical
             };
 
             Controls.AddRange(new Control[] {
