@@ -13,7 +13,6 @@ namespace MatrixCalculator.UI
         private SlaeTab _slaeTab;
         private VectorTab _vectorTab;
         private BasisTab _basisTab;
-        private ShapesTab _shapesTab;
         private Panel _headerPanel;
 
         public MainForm()
@@ -79,10 +78,9 @@ namespace MatrixCalculator.UI
             _slaeTab = new SlaeTab();
             _vectorTab = new VectorTab();
             _basisTab = new BasisTab();
-            _shapesTab = new ShapesTab();
 
             tabControl.TabPages.AddRange(new TabPage[] {
-                _matrixTab, _slaeTab, _vectorTab, _basisTab, _shapesTab
+                _matrixTab, _slaeTab, _vectorTab, _basisTab
             });
 
             var mainPanel = new Panel { Dock = DockStyle.Fill, BackColor = AppTheme.Background };
