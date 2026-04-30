@@ -30,15 +30,16 @@ namespace MatrixCalculator.UI
                 Font = AppTheme.LabelFont,
                 ForeColor = AppTheme.TextMuted,
                 AutoSize = true,
-                Location = new Point(24, 20)
+                Location = new Point(24, 20),
+                BackColor = Color.Transparent
             };
 
             // ── Basis grids ────────────────────────────────────────────────────
-            Controls.Add(AppTheme.MakeSectionLabel("Базис E  (столбцы — векторы)", 24, 46));
-            Controls.Add(AppTheme.MakeSectionLabel("Базис F  (столбцы — векторы)", 410, 46));
+            Controls.Add(AppTheme.MakeSectionLabel("Базис E  (столбцы — векторы)", 24, 50));
+            Controls.Add(AppTheme.MakeSectionLabel("Базис F  (столбцы — векторы)", 410, 50));
 
-            _dgvBasisE = CreateGrid(24, 66);
-            _dgvBasisF = CreateGrid(410, 66);
+            _dgvBasisE = CreateGrid(24, 70);
+            _dgvBasisF = CreateGrid(410, 70);
 
             // Arrow indicator
             var arrow = new Label
@@ -51,22 +52,22 @@ namespace MatrixCalculator.UI
             };
 
             // ── Vector input ───────────────────────────────────────────────────
-            Controls.Add(AppTheme.MakeSectionLabel("Вектор в базисе E", 24, 270));
+            Controls.Add(AppTheme.MakeSectionLabel("Вектор в базисе E", 24, 290));
 
-            var vecCard = AppTheme.MakeCard(24, 290, 360, 80);
-            var lblX = new Label { Text = "X", Font = new Font("Consolas", 9F, FontStyle.Bold), ForeColor = AppTheme.Accent, AutoSize = true, Location = new Point(14, 28) };
+            var vecCard = AppTheme.MakeCard(24, 310, 360, 80);
+            var lblX = new Label { Text = "X", Font = new Font("Consolas", 9F, FontStyle.Bold), ForeColor = AppTheme.Accent, AutoSize = true, Location = new Point(14, 28), BackColor = Color.Transparent };
             _txtVecX = MakeInput(36, 24, "1");
-            var lblY = new Label { Text = "Y", Font = new Font("Consolas", 9F, FontStyle.Bold), ForeColor = AppTheme.Accent, AutoSize = true, Location = new Point(120, 28) };
+            var lblY = new Label { Text = "Y", Font = new Font("Consolas", 9F, FontStyle.Bold), ForeColor = AppTheme.Accent, AutoSize = true, Location = new Point(120, 28), BackColor = Color.Transparent };
             _txtVecY = MakeInput(142, 24, "0");
-            var lblZ = new Label { Text = "Z", Font = new Font("Consolas", 9F, FontStyle.Bold), ForeColor = AppTheme.Accent, AutoSize = true, Location = new Point(226, 28) };
+            var lblZ = new Label { Text = "Z", Font = new Font("Consolas", 9F, FontStyle.Bold), ForeColor = AppTheme.Accent, AutoSize = true, Location = new Point(226, 28), BackColor = Color.Transparent };
             _txtVecZ = MakeInput(248, 24, "0");
             vecCard.Controls.AddRange(new Control[] { lblX, _txtVecX, lblY, _txtVecY, lblZ, _txtVecZ });
 
-            _btnCalc = AppTheme.MakePrimaryButton("▶  НАЙТИ МАТРИЦУ ПЕРЕХОДА", 24, 384, 360, 42);
+            _btnCalc = AppTheme.MakePrimaryButton("▶  НАЙТИ МАТРИЦУ ПЕРЕХОДА", 24, 404, 360, 44);
             _btnCalc.Click += BtnCalc_Click;
 
             // ── Result ─────────────────────────────────────────────────────────
-            var resultCard = AppTheme.MakeCard(24, 442, 760, 280, "Результат");
+            var resultCard = AppTheme.MakeCard(24, 464, 760, 280, "Результат");
             _txtResult = AppTheme.MakeResultBox(12, 30, 734, 240);
             resultCard.Controls.Add(_txtResult);
 

@@ -27,16 +27,16 @@ namespace MatrixCalculator.UI
             Controls.Add(AppTheme.MakeSectionLabel("Входные векторы", 24, 20));
 
             // ── Vector input cards ─────────────────────────────────────────────
-            var cardA = BuildVectorCard("Вектор  A", 24, 44, _txtVecA, 0, Color.FromArgb(0, 180, 230));
-            var cardB = BuildVectorCard("Вектор  B", 230, 44, _txtVecB, 1, AppTheme.Accent);
-            var cardC = BuildVectorCard("Вектор  C", 436, 44, _txtVecC, 2, Color.FromArgb(160, 120, 255));
+            var cardA = BuildVectorCard("Вектор  A", 24, 50, _txtVecA, 0, Color.FromArgb(0, 180, 230));
+            var cardB = BuildVectorCard("Вектор  B", 236, 50, _txtVecB, 1, AppTheme.Accent);
+            var cardC = BuildVectorCard("Вектор  C", 448, 50, _txtVecC, 2, Color.FromArgb(160, 120, 255));
 
             // ── Operation ─────────────────────────────────────────────────────
-            Controls.Add(AppTheme.MakeSectionLabel("Операция", 24, 230));
+            Controls.Add(AppTheme.MakeSectionLabel("Операция", 24, 246));
 
             _cbVecOp = new ComboBox
             {
-                Location = new Point(24, 250),
+                Location = new Point(24, 266),
                 Width = 380,
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 BackColor = AppTheme.InputBg,
@@ -54,19 +54,19 @@ namespace MatrixCalculator.UI
             });
             _cbVecOp.SelectedIndex = 0;
 
-            _btnCalcVec = AppTheme.MakePrimaryButton("▶  ВЫЧИСЛИТЬ", 24, 300, 380, 42);
+            _btnCalcVec = AppTheme.MakePrimaryButton("▶  ВЫЧИСЛИТЬ", 24, 316, 380, 44);
             _btnCalcVec.Click += BtnCalcVec_Click;
 
             // ── Result ─────────────────────────────────────────────────────────
-            var resultCard = AppTheme.MakeCard(24, 360, 680, 110, "Результат");
-            _txtVecResult = AppTheme.MakeResultBox(12, 30, 654, 72);
+            var resultCard = AppTheme.MakeCard(24, 376, 680, 120, "Результат");
+            _txtVecResult = AppTheme.MakeResultBox(12, 30, 654, 80);
             resultCard.Controls.Add(_txtVecResult);
 
             // ── Chart ──────────────────────────────────────────────────────────
-            Controls.Add(AppTheme.MakeSectionLabel("Визуализация (проекция XY)", 24, 486));
+            Controls.Add(AppTheme.MakeSectionLabel("Визуализация (проекция XY)", 24, 512));
             _chartPanel = new ChartPanel
             {
-                Location = new Point(24, 506),
+                Location = new Point(24, 532),
                 Width = 680,
                 Height = 280,
                 BackColor = AppTheme.Surface

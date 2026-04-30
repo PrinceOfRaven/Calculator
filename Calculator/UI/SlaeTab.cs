@@ -24,29 +24,30 @@ namespace MatrixCalculator.UI
         private void InitializeComponent()
         {
             // ── Size controls ──────────────────────────────────────────────────
-            Controls.Add(AppTheme.MakeSectionLabel("Система уравнений", 24, 20));
+            var sectionLabel = AppTheme.MakeSectionLabel("Система уравнений", 24, 20);
+            Controls.Add(sectionLabel);
 
-            var lblRows = new Label { Text = "Уравнений", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(24, 44) };
-            _numRows = MakeSpinner(110, 40, 3);
-            var lblCols = new Label { Text = "Неизвестных", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(178, 44) };
-            _numCols = MakeSpinner(272, 40, 3);
+            var lblRows = new Label { Text = "Уравнений", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(24, 56), BackColor = Color.Transparent };
+            _numRows = MakeSpinner(110, 52, 3);
+            var lblCols = new Label { Text = "Неизвестных", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(178, 56), BackColor = Color.Transparent };
+            _numCols = MakeSpinner(272, 52, 3);
 
-            var btnInit = AppTheme.MakeSecondaryButton("СОЗДАТЬ", 338, 37, 110, 30);
+            var btnInit = AppTheme.MakeSecondaryButton("СОЗДАТЬ", 338, 50, 110, 34);
             btnInit.Click += (s, e) => ResizeGrids((int)_numRows.Value, (int)_numCols.Value);
 
             // ── Grids ──────────────────────────────────────────────────────────
-            Controls.Add(AppTheme.MakeSectionLabel("Коэффициенты  [A]", 24, 84));
-            Controls.Add(AppTheme.MakeSectionLabel("Свободные  [b]", 340, 84));
-
-            _dgvCoeffs = CreateGrid(24, 104, 3, 3);
-            _dgvFree   = CreateGrid(340, 104, 3, 1);
+            var coeffsLabel = AppTheme.MakeSectionLabel("Коэффициенты  [A]", 24, 104);
+            var freeLabel = AppTheme.MakeSectionLabel("Свободные  [b]", 340, 104);
+            
+            _dgvCoeffs = CreateGrid(24, 124, 3, 3);
+            _dgvFree   = CreateGrid(340, 124, 3, 1);
 
             // ── Method ─────────────────────────────────────────────────────────
-            Controls.Add(AppTheme.MakeSectionLabel("Метод решения", 24, 316));
+            var methodLabel = AppTheme.MakeSectionLabel("Метод решения", 24, 356);
 
             _cbMethod = new ComboBox
             {
-                Location = new Point(24, 336),
+                Location = new Point(24, 376),
                 Width = 400,
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 BackColor = AppTheme.InputBg,
@@ -57,17 +58,19 @@ namespace MatrixCalculator.UI
             UpdateMethodList();
             _cbMethod.SelectedIndex = 0;
 
-            _btnCalc = AppTheme.MakePrimaryButton("▶  РЕШИТЬ СИСТЕМУ", 24, 386, 400, 42);
+            _btnCalc = AppTheme.MakePrimaryButton("▶  РЕШИТЬ СИСТЕМУ", 24, 426, 400, 46);
             _btnCalc.Click += BtnCalc_Click;
 
             // ── Result ─────────────────────────────────────────────────────────
-            var resultCard = AppTheme.MakeCard(24, 446, 840, 340, "Решение");
+            var resultCard = AppTheme.MakeCard(24, 488, 840, 340, "Решение");
             _txtResult = AppTheme.MakeResultBox(12, 30, 814, 300);
             resultCard.Controls.Add(_txtResult);
 
             Controls.AddRange(new Control[] {
                 lblRows, _numRows, lblCols, _numCols, btnInit,
-                _dgvCoeffs, _dgvFree, _cbMethod, _btnCalc, resultCard
+                coeffsLabel, freeLabel,
+                _dgvCoeffs, _dgvFree, 
+                methodLabel, _cbMethod, _btnCalc, resultCard
             });
         }
 

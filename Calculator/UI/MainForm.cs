@@ -45,7 +45,8 @@ namespace MatrixCalculator.UI
                 Font = AppTheme.TitleFont,
                 ForeColor = AppTheme.Accent,
                 AutoSize = true,
-                Location = new Point(28, 18)
+                Location = new Point(28, 18),
+                BackColor = Color.Transparent
             };
 
             var subtitleLabel = new Label
@@ -54,7 +55,8 @@ namespace MatrixCalculator.UI
                 Font = new Font("Consolas", 9F),
                 ForeColor = AppTheme.TextMuted,
                 AutoSize = true,
-                Location = new Point(30, 40)
+                Location = new Point(30, 40),
+                BackColor = Color.Transparent
             };
 
             _headerPanel.Controls.Add(titleLabel);
