@@ -13,7 +13,6 @@ namespace MatrixCalculator.UI
         private SlaeTab _slaeTab;
         private VectorTab _vectorTab;
         private BasisTab _basisTab;
-        private ShapesTab _shapesTab;
         private Panel _headerPanel;
 
         public MainForm()
@@ -46,7 +45,8 @@ namespace MatrixCalculator.UI
                 Font = AppTheme.TitleFont,
                 ForeColor = AppTheme.Accent,
                 AutoSize = true,
-                Location = new Point(28, 18)
+                Location = new Point(28, 18),
+                BackColor = Color.Transparent
             };
 
             var subtitleLabel = new Label
@@ -55,7 +55,8 @@ namespace MatrixCalculator.UI
                 Font = new Font("Consolas", 9F),
                 ForeColor = AppTheme.TextMuted,
                 AutoSize = true,
-                Location = new Point(30, 40)
+                Location = new Point(30, 40),
+                BackColor = Color.Transparent
             };
 
             _headerPanel.Controls.Add(titleLabel);
@@ -79,10 +80,9 @@ namespace MatrixCalculator.UI
             _slaeTab = new SlaeTab();
             _vectorTab = new VectorTab();
             _basisTab = new BasisTab();
-            _shapesTab = new ShapesTab();
 
             tabControl.TabPages.AddRange(new TabPage[] {
-                _matrixTab, _slaeTab, _vectorTab, _basisTab, _shapesTab
+                _matrixTab, _slaeTab, _vectorTab, _basisTab
             });
 
             var mainPanel = new Panel { Dock = DockStyle.Fill, BackColor = AppTheme.Background };

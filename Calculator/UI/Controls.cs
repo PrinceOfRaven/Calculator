@@ -61,6 +61,11 @@ namespace MatrixCalculator.UI
         {
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            // Fill background to prevent text bleeding through
+            using var bgBrush = new SolidBrush(BackColor);
+            g.FillRectangle(bgBrush, ClientRectangle);
 
             var rect = new Rectangle(0, 0, Width - 1, Height - 1);
 
@@ -74,7 +79,7 @@ namespace MatrixCalculator.UI
                 // Highlight overlay
                 if (_hoverAlpha > 0)
                 {
-                    using var glow = new SolidBrush(Color.FromArgb(30, Color.White));
+                    using var glow = new SolidBrush(Color.FromArgb((int)(30 * _hoverAlpha), Color.White));
                     g.FillRectangle(glow, rect);
                 }
             }
@@ -85,7 +90,7 @@ namespace MatrixCalculator.UI
 
                 if (_hoverAlpha > 0)
                 {
-                    using var fill = new SolidBrush(Color.FromArgb(25, AppTheme.Accent));
+                    using var fill = new SolidBrush(Color.FromArgb((int)(25 * _hoverAlpha), AppTheme.Accent));
                     g.FillRectangle(fill, rect);
                 }
             }
@@ -95,7 +100,7 @@ namespace MatrixCalculator.UI
                 g.DrawRectangle(border, rect);
                 if (_hoverAlpha > 0)
                 {
-                    using var fill = new SolidBrush(Color.FromArgb(30, AppTheme.Danger));
+                    using var fill = new SolidBrush(Color.FromArgb((int)(30 * _hoverAlpha), AppTheme.Danger));
                     g.FillRectangle(fill, rect);
                 }
             }
