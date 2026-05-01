@@ -1,33 +1,19 @@
 ```
-# Build artifacts
+# Compiled and build artifacts
+*.obj
 *.exe
 *.dll
-*.pdb
-*.obj
-*.lib
 *.so
-*.dylib
+*.a
+*.out
 
 # Dependencies
 packages/
-bin/
-obj/
 
-# Logs
+# Logs and temp files
 *.log
+*.tmp
 
-# User-specific files
+# Editors
 .vs/
-*.user
-*.userosscache
-*.suo
-
-# Environment
-.env
-.env.local
-*.env.*
-
-# OS generated files
-.DS_Store
-Thumbs.db
 ```
