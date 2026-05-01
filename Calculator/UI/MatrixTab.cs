@@ -27,37 +27,37 @@ namespace MatrixCalculator.UI
             // ── Matrix A controls ──────────────────────────────────────────────
             Controls.Add(AppTheme.MakeSectionLabel("Матрица A", 24, 20));
 
-            var lblRowsA = new Label { Text = "Строк", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(24, 48) };
-            _numMatrixRowsA = MakeSpinner(80, 44, 3);
-            var lblColsA = new Label { Text = "Столбцов", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(150, 48) };
-            _numMatrixColsA = MakeSpinner(230, 44, 3);
+            var lblRowsA = new Label { Text = "Строк", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(24, 50), BackColor = Color.Transparent };
+            _numMatrixRowsA = MakeSpinner(80, 46, 3);
+            var lblColsA = new Label { Text = "Столбцов", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(150, 50), BackColor = Color.Transparent };
+            _numMatrixColsA = MakeSpinner(230, 46, 3);
 
             _numMatrixRowsA.ValueChanged += (s, e) => ResizeGrid(_dgvMatrixA, (int)_numMatrixRowsA.Value, (int)_numMatrixColsA.Value);
             _numMatrixColsA.ValueChanged += (s, e) => ResizeGrid(_dgvMatrixA, (int)_numMatrixRowsA.Value, (int)_numMatrixColsA.Value);
 
             // ── Grid A ──────────────────────────────────────────────────────────
-            _dgvMatrixA = CreateGrid(24, 80, 3, 3);
+            _dgvMatrixA = CreateGrid(24, 82, 3, 3);
 
             // ── Matrix B controls ──────────────────────────────────────────────
-            Controls.Add(AppTheme.MakeSectionLabel("Матрица B", 24, 260));
+            Controls.Add(AppTheme.MakeSectionLabel("Матрица B", 24, 290));
 
-            var lblRowsB = new Label { Text = "Строк", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(24, 288) };
-            _numMatrixRowsB = MakeSpinner(80, 284, 3);
-            var lblColsB = new Label { Text = "Столбцов", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(150, 288) };
-            _numMatrixColsB = MakeSpinner(230, 284, 3);
+            var lblRowsB = new Label { Text = "Строк", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(24, 320), BackColor = Color.Transparent };
+            _numMatrixRowsB = MakeSpinner(80, 316, 3);
+            var lblColsB = new Label { Text = "Столбцов", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(150, 320), BackColor = Color.Transparent };
+            _numMatrixColsB = MakeSpinner(230, 316, 3);
 
             _numMatrixRowsB.ValueChanged += (s, e) => ResizeGrid(_dgvMatrixB, (int)_numMatrixRowsB.Value, (int)_numMatrixColsB.Value);
             _numMatrixColsB.ValueChanged += (s, e) => ResizeGrid(_dgvMatrixB, (int)_numMatrixRowsB.Value, (int)_numMatrixColsB.Value);
 
             // ── Grid B ──────────────────────────────────────────────────────────
-            _dgvMatrixB = CreateGrid(24, 320, 3, 3);
+            _dgvMatrixB = CreateGrid(24, 352, 3, 3);
 
             // ── Operation selector ─────────────────────────────────────────────
             Controls.Add(AppTheme.MakeSectionLabel("Операция", 440, 20));
 
             _cbMatrixOp = new ComboBox
             {
-                Location = new Point(440, 44),
+                Location = new Point(440, 50),
                 Width = 340,
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 BackColor = AppTheme.InputBg,
@@ -76,12 +76,12 @@ namespace MatrixCalculator.UI
             });
             _cbMatrixOp.SelectedIndex = 0;
 
-            _btnCalcMatrix = AppTheme.MakePrimaryButton("▶  ВЫЧИСЛИТЬ", 440, 90, 340, 42);
+            _btnCalcMatrix = AppTheme.MakePrimaryButton("▶  ВЫЧИСЛИТЬ", 440, 100, 340, 44);
             _btnCalcMatrix.Click += BtnCalcMatrix_Click;
 
             // ── Result ─────────────────────────────────────────────────────────
-            _resultCard = AppTheme.MakeCard(440, 150, 780, 420, "Результат");
-            _txtMatrixResult = AppTheme.MakeResultBox(12, 30, 754, 376);
+            _resultCard = AppTheme.MakeCard(440, 160, 780, 520, "Результат");
+            _txtMatrixResult = AppTheme.MakeResultBox(12, 30, 754, 476);
             _resultCard.Controls.Add(_txtMatrixResult);
 
             Controls.AddRange(new Control[] {
