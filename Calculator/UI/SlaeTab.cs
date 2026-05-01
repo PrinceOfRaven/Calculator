@@ -18,6 +18,7 @@ namespace MatrixCalculator.UI
         private Button _btnReset;
         private TextBox _txtResult;
         private Label _lblDiagNote;
+        private Panel _gridContainer;
 
         private const int GridTop = 110;
         private const int ControlsY = 380;
@@ -31,101 +32,223 @@ namespace MatrixCalculator.UI
 
         private void InitializeComponent()
         {
-            // ── Title & description ────────────────────────────────────────────
+            // ── Заголовок ───────────────────────────────────────────────────
             var lblTitle = AppTheme.MakeSectionLabel("Система линейных алгебраических уравнений  [A]·x = b", AppTheme.PadLeft, 22);
             lblTitle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             lblTitle.ForeColor = AppTheme.Accent;
 
-            // ── Size controls ──────────────────────────────────────────────────
-            //    Rows = equations (vertical), Cols = unknowns (horizontal)
-            //    These are deliberately kept independent.
+            var lblRows = new Label { Text = "Уравнений", Left = AppTheme.PadLeft, Top = 64, AutoSize = true, ForeColor = AppTheme.TextMuted };
+            var lblCols = new Label { Text = "Неизвестных", Left = AppTheme.PadLeft + 90, Top = 64, AutoSize = true, ForeColor = AppTheme.TextMuted };
 
-            var sizeCard = new Panel
+            _numRows = AppTheme.MakeSpinner(AppTheme.PadLeft, 84, 5);
+            _numCols = AppTheme.MakeSpinner(AppTheme.PadLeft + 90, 84, 5);
+
+            _numRows.ValueChanged += UpdateGridSize;
+            _numCols.ValueChanged += UpdateGridSize;
+
+            this.Controls.Add(lblTitle);
+            this.Controls.Add(lblRows);
+            this.Controls.Add(lblCols);
+            this.Controls.Add(_numRows);
+            this.Controls.Add(_numCols);
+
+            // ── Контейнер для таблиц (решает проблему с багами UI) ──────────
+            _gridContainer = new Panel
             {
-                Location = new Point(AppTheme.PadLeft, 54),
-                Size = new Size(800, 46),
-                BackColor = Color.Transparent
+                Location = new Point(AppTheme.PadLeft, GridTop),
+                Size = new Size(820, 260),
+                AutoScroll = true,
+                BackColor = AppTheme.Background
             };
+            this.Controls.Add(_gridContainer);
 
-            var lblRows = AppTheme.MakeFieldLabel("Уравнений (строк):", 0, 12);
-            _numRows = AppTheme.MakeSpinner(170, 8, 3);
+            // Создаем таблицы через универсальный метод
+            _dgvCoeffs = CreateStyledGrid();
+            _dgvFree = CreateStyledGrid();
 
-            var lblCols = AppTheme.MakeFieldLabel("Неизвестных (столбцов):", 250, 12);
-            _numCols = AppTheme.MakeSpinner(450, 8, 3);
+            _gridContainer.Controls.Add(_dgvCoeffs);
+            _gridContainer.Controls.Add(_dgvFree);
 
-            // Diagonal info badge — shows when it's a square system
-            _lblDiagNote = new Label
-            {
-                Text = "✓ Квадратная — все методы доступны",
-                Font = new Font("Segoe UI", 8.5F, FontStyle.Italic),
-                ForeColor = AppTheme.Success,
-                AutoSize = true,
-                Location = new Point(730, 14)
-            };
-
-            var btnApply = AppTheme.MakeSecondaryButton("ПРИМЕНИТЬ", 524, 6, 120, 32);
-            btnApply.Click += (s, e) => ApplySize();
-
-            _numRows.ValueChanged += (s, e) => UpdateDiagNote();
-            _numCols.ValueChanged += (s, e) => UpdateDiagNote();
-
-            sizeCard.Controls.AddRange(new Control[] {
-                lblRows, _numRows, lblCols, _numCols, _lblDiagNote, btnApply
-            });
-
-            // ── Section labels ─────────────────────────────────────────────────
-            var lblCoeffs = AppTheme.MakeSectionLabel("Коэффициенты  [A]", AppTheme.PadLeft, GridTop - 22);
-            var lblFree = AppTheme.MakeSectionLabel("Свободные  [b]", 430, GridTop - 22);
-
-            // ── Grids ──────────────────────────────────────────────────────────
-            _dgvCoeffs = CreateCoeffGrid(AppTheme.PadLeft, GridTop, 3, 3);
-            _dgvFree = CreateFreeGrid(430, GridTop, 3);
-
-            // ── Method selector ────────────────────────────────────────────────
-            var lblMethod = AppTheme.MakeSectionLabel("Метод решения", AppTheme.PadLeft, ControlsY);
-
+            // ── Панель управления ──────────────────────────────────────────
+            var lblMethod = new Label { Text = "Метод решения:", Left = AppTheme.PadLeft, Top = ControlsY, AutoSize = true };
             _cbMethod = new ComboBox
             {
-                Location = new Point(AppTheme.PadLeft, ControlsY + 26),
-                Width = 500,
-                Height = AppTheme.InputH,
+                Location = new Point(AppTheme.PadLeft, ControlsY + 22),
+                Width = 220,
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                BackColor = AppTheme.InputBg,
+                BackColor = AppTheme.SurfaceRaised,
                 ForeColor = AppTheme.TextPrimary,
-                Font = AppTheme.MonoFont,
                 FlatStyle = FlatStyle.Flat
             };
-            RebuildMethodList();
 
-            // ── Buttons ────────────────────────────────────────────────────────
-            _btnCalc = AppTheme.MakePrimaryButton("▶  РЕШИТЬ СИСТЕМУ", AppTheme.PadLeft, ControlsY + 72, 350, 44);
-            _btnReset = AppTheme.MakeSecondaryButton("✕  ОЧИСТИТЬ", AppTheme.PadLeft + 366, ControlsY + 72, 170, 44);
-
-            _btnCalc.Click += BtnCalc_Click;
-            _btnReset.Click += (s, e) => ClearGrids();
-
-            // ── Method hint ────────────────────────────────────────────────────
-            var lblHint = new Label
+            _lblDiagNote = new Label
             {
-                Text = "Метод Крамера и матричный метод работают только для квадратных систем (m = n)",
-                Font = new Font("Segoe UI", 8.5F, FontStyle.Italic),
                 ForeColor = AppTheme.TextMuted,
-                AutoSize = true,
-                Location = new Point(AppTheme.PadLeft, ControlsY + 124)
+                Font = new Font("Segoe UI", 8.5F, FontStyle.Italic),
+                Location = new Point(AppTheme.PadLeft + 240, ControlsY + 26),
+                AutoSize = true
             };
 
-            // ── Result card ────────────────────────────────────────────────────
-            var resultCard = AppTheme.MakeCard(AppTheme.PadLeft, ControlsY + 150, 960, 380, "Решение");
-            _txtResult = AppTheme.MakeResultBox(14, 38, 928, 328);
-            resultCard.Controls.Add(_txtResult);
+            _btnCalc = new StyledButton(ButtonVariant.Primary)
+            {
+                Text = "РЕШИТЬ СЛАУ",
+                Location = new Point(AppTheme.PadLeft, ControlsY + 70),
+                Size = new Size(180, 40)
+            };
+            _btnCalc.Click += BtnCalc_Click; // Твой метод
 
-            Controls.AddRange(new Control[] {
-                lblTitle, sizeCard, lblCoeffs, lblFree,
-                _dgvCoeffs, _dgvFree, lblMethod, _cbMethod,
-                _btnCalc, _btnReset, lblHint, resultCard
-            });
+            _btnReset = new StyledButton(ButtonVariant.Secondary)
+            {
+                Text = "ОЧИСТИТЬ",
+                Location = new Point(AppTheme.PadLeft + 195, ControlsY + 70),
+                Size = new Size(120, 40)
+            };
+            _btnReset.Click += (s, e) => { ClearGrids(); };
+
+            this.Controls.Add(lblMethod);
+            this.Controls.Add(_cbMethod);
+            this.Controls.Add(_lblDiagNote);
+            this.Controls.Add(_btnCalc);
+            this.Controls.Add(_btnReset);
+
+            // ── Поле результата ────────────────────────────────────────────
+            var lblRes = AppTheme.MakeSectionLabel("РЕЗУЛЬТАТ", AppTheme.PadLeft, ControlsY + 130);
+            _txtResult = AppTheme.MakeResultBox(AppTheme.PadLeft, ControlsY + 155, 600, 180);
+
+            this.Controls.Add(lblRes);
+            this.Controls.Add(_txtResult);
+
+            // Первичная отрисовка 5x5
+            UpdateGridSize(null, null);
         }
 
+        // Вспомогательный метод для создания сетки (вместо CreateCoeffGrid/CreateFreeGrid)
+        private DataGridView CreateStyledGrid()
+        {
+            var dgv = new DataGridView
+            {
+                AllowUserToAddRows = false,
+                AllowUserToOrderColumns = false,
+                RowHeadersVisible = true,
+                ColumnHeadersVisible = true,
+                ScrollBars = ScrollBars.None, // Прокруткой заведует Panel
+                BackgroundColor = AppTheme.Background,
+                BorderStyle = BorderStyle.None
+            };
+            AppTheme.StyleGrid(dgv);
+            return dgv;
+        }
+
+        private void UpdateGridSize(object? sender, EventArgs? e)
+        {
+            int rows = (int)_numRows.Value;
+            int cols = (int)_numCols.Value;
+
+            _dgvCoeffs.SuspendLayout();
+            _dgvFree.SuspendLayout();
+
+            // 1. Обновляем матрицу коэффициентов A
+            _dgvCoeffs.ColumnCount = cols;
+            for (int i = 0; i < cols; i++)
+            {
+                _dgvCoeffs.Columns[i].HeaderText = $"x{SubscriptDigit(i + 1)}";
+                _dgvCoeffs.Columns[i].Width = 60;
+                _dgvCoeffs.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
+            }
+
+            _dgvCoeffs.RowCount = rows;
+            for (int i = 0; i < rows; i++)
+            {
+                _dgvCoeffs.Rows[i].HeaderCell.Value = $"eq{i + 1}";
+            }
+
+            // 2. Обновляем вектор свободных членов b
+            _dgvFree.ColumnCount = 1;
+            _dgvFree.Columns[0].HeaderText = "  b";
+            _dgvFree.Columns[0].Width = 70;
+            _dgvFree.RowCount = rows;
+            for (int i = 0; i < rows; i++)
+            {
+                _dgvFree.Rows[i].HeaderCell.Value = $"b{i + 1}";
+            }
+
+            // 3. Расчет геометрии (чтобы панель прокрутки знала размеры)
+            _dgvCoeffs.Height = (rows * _dgvCoeffs.RowTemplate.Height) + _dgvCoeffs.ColumnHeadersHeight + 2;
+            _dgvCoeffs.Width = (cols * 60) + _dgvCoeffs.RowHeadersWidth + 2;
+
+            _dgvFree.Height = _dgvCoeffs.Height;
+            _dgvFree.Width = 70 + _dgvFree.RowHeadersWidth + 2;
+            _dgvFree.Location = new Point(_dgvCoeffs.Right + 30, 0);
+
+            _dgvCoeffs.ResumeLayout();
+            _dgvFree.ResumeLayout();
+
+            // Обновляем методы и надписи
+            RebuildMethodList();
+            UpdateDiagNote();
+        }
+
+        private void UpdateDiagNote()
+        {
+            bool square = (int)_numRows.Value == (int)_numCols.Value;
+            _lblDiagNote.Text = square
+                ? "✓ Квадратная — все методы доступны"
+                : $"ℹ Прямоугольная ({_numRows.Value}×{_numCols.Value}) — только метод Гаусса";
+            _lblDiagNote.ForeColor = square ? AppTheme.Success : AppTheme.Warning;
+        }
+
+        private void RebuildMethodList()
+        {
+            bool sq = (int)_numRows.Value == (int)_numCols.Value;
+            _cbMethod.Items.Clear();
+            _cbMethod.Items.Add("Метод Гаусса (пошагово)");
+            if (sq)
+            {
+                _cbMethod.Items.Add("Метод Крамера");
+                _cbMethod.Items.Add("Матричный метод");
+            }
+            _cbMethod.SelectedIndex = 0;
+        }
+
+        private void ClearGrids()
+        {
+            foreach (DataGridViewRow row in _dgvCoeffs.Rows)
+                foreach (DataGridViewCell cell in row.Cells) cell.Value = "0";
+            foreach (DataGridViewRow row in _dgvFree.Rows)
+                if (row.Cells.Count > 0) row.Cells[0].Value = "0";
+            _txtResult.Clear();
+        }
+
+        /*private void UpdateGridSize(object sender, EventArgs e)
+        {
+            int rows = (int)_numRows.Value;
+            int cols = (int)_numCols.Value;
+
+            // Блокируем перерисовку для производительности
+            _dgvCoeffs.SuspendLayout();
+            _dgvFree.SuspendLayout();
+
+            _dgvCoeffs.RowCount = rows;
+            _dgvCoeffs.ColumnCount = cols;
+            _dgvFree.RowCount = rows;
+            _dgvFree.ColumnCount = 1;
+
+            // Устанавливаем ширину колонок
+            for (int i = 0; i < cols; i++) _dgvCoeffs.Columns[i].Width = 60;
+            _dgvFree.Columns[0].Width = 70;
+
+            // Рассчитываем реальный размер таблиц, чтобы панель "поняла", что нужна прокрутка
+            _dgvCoeffs.Height = (rows * _dgvCoeffs.RowTemplate.Height) + _dgvCoeffs.ColumnHeadersHeight + 2;
+            _dgvCoeffs.Width = (cols * 60) + _dgvCoeffs.RowHeadersWidth + 2;
+
+            _dgvFree.Height = _dgvCoeffs.Height;
+            _dgvFree.Left = _dgvCoeffs.Right + 20; // Вектор b всегда справа от матрицы A
+
+            _dgvCoeffs.ResumeLayout();
+            _dgvFree.ResumeLayout();
+
+            UpdateDiagNote();
+        }*/
         // ── Grid factories ─────────────────────────────────────────────────────
 
         private DataGridView CreateCoeffGrid(int x, int y, int rows, int cols)
@@ -237,7 +360,7 @@ namespace MatrixCalculator.UI
             _txtResult.ForeColor = AppTheme.Accent;
         }
 
-        private void ClearGrids()
+        /*private void ClearGrids()
         {
             foreach (DataGridViewRow row in _dgvCoeffs.Rows)
                 foreach (DataGridViewCell cell in row.Cells)
@@ -245,9 +368,9 @@ namespace MatrixCalculator.UI
             foreach (DataGridViewRow row in _dgvFree.Rows)
                 if (row.Cells.Count > 0) row.Cells[0].Value = "0";
             _txtResult.Text = "";
-        }
+        }*/
 
-        private void UpdateDiagNote()
+        /*private void UpdateDiagNote()
         {
             bool square = (int)_numRows.Value == (int)_numCols.Value;
             _lblDiagNote.Text = square
@@ -270,7 +393,7 @@ namespace MatrixCalculator.UI
                 _cbMethod.Items.Add("Матричный метод  (A⁻¹ · b)");
             }
             _cbMethod.SelectedIndex = 0;
-        }
+        }*/
 
         // ── Calculation ────────────────────────────────────────────────────────
 
