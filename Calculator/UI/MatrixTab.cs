@@ -7,106 +7,119 @@ namespace MatrixCalculator.UI
 {
     public class MatrixTab : TabPage
     {
-        private NumericUpDown _numMatrixRowsA, _numMatrixColsA;
-        private NumericUpDown _numMatrixRowsB, _numMatrixColsB;
-        private DataGridView _dgvMatrixA;
-        private DataGridView _dgvMatrixB;
-        private ComboBox _cbMatrixOp;
-        private Button _btnCalcMatrix;
-        private TextBox _txtMatrixResult;
+        private NumericUpDown _numRowsA, _numColsA;
+        private NumericUpDown _numRowsB, _numColsB;
+        private DataGridView _dgvA;
+        private DataGridView _dgvB;
+        private ComboBox _cbOp;
+        private Button _btnCalc;
+        private TextBox _txtResult;
         private Panel _resultCard;
+
+        // Layout constants for larger grids
+        private const int GridTop = 90;
+        private const int GridALeft = AppTheme.PadLeft;
+        private const int GridBLeft = 540;
+        private const int ControlsY = 320;
 
         public MatrixTab() : base("Матрицы")
         {
             BackColor = AppTheme.Background;
+            AutoScroll = true;
             InitializeComponent();
         }
 
         private void InitializeComponent()
         {
-            // ── Matrix A controls ──────────────────────────────────────────────
-            Controls.Add(AppTheme.MakeSectionLabel("Матрица A", 24, 20));
+            // ── Matrix A ───────────────────────────────────────────────────────
+            var lblA = AppTheme.MakeSectionLabel("Матрица  A", GridALeft, 24);
+            lblA.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            lblA.ForeColor = AppTheme.Accent;
 
-            var lblRowsA = new Label { Text = "Строк", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(24, 50), BackColor = Color.Transparent };
-            _numMatrixRowsA = MakeSpinner(80, 46, 3);
-            var lblColsA = new Label { Text = "Столбцов", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(150, 50), BackColor = Color.Transparent };
-            _numMatrixColsA = MakeSpinner(230, 46, 3);
+            var lblRowsA = AppTheme.MakeFieldLabel("Строк:", GridALeft, 56);
+            _numRowsA = AppTheme.MakeSpinner(GridALeft + 68, 50, 3);
+            var lblColsA = AppTheme.MakeFieldLabel("Столбцов:", GridALeft + 148, 56);
+            _numColsA = AppTheme.MakeSpinner(GridALeft + 238, 50, 3);
 
-            _numMatrixRowsA.ValueChanged += (s, e) => ResizeGrid(_dgvMatrixA, (int)_numMatrixRowsA.Value, (int)_numMatrixColsA.Value);
-            _numMatrixColsA.ValueChanged += (s, e) => ResizeGrid(_dgvMatrixA, (int)_numMatrixRowsA.Value, (int)_numMatrixColsA.Value);
+            _numRowsA.ValueChanged += (s, e) => ResizeGrid(_dgvA, (int)_numRowsA.Value, (int)_numColsA.Value);
+            _numColsA.ValueChanged += (s, e) => ResizeGrid(_dgvA, (int)_numRowsA.Value, (int)_numColsA.Value);
 
-            // ── Grid A ──────────────────────────────────────────────────────────
-            _dgvMatrixA = CreateGrid(24, 82, 3, 3);
+            _dgvA = CreateGrid(GridALeft, GridTop, 3, 3);
 
-            // ── Matrix B controls ──────────────────────────────────────────────
-            Controls.Add(AppTheme.MakeSectionLabel("Матрица B", 24, 290));
+            // ── Matrix B ───────────────────────────────────────────────────────
+            var lblB = AppTheme.MakeSectionLabel("Матрица  B", GridBLeft, 24);
+            lblB.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            lblB.ForeColor = Color.FromArgb(0, 180, 230);
 
-            var lblRowsB = new Label { Text = "Строк", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(24, 320), BackColor = Color.Transparent };
-            _numMatrixRowsB = MakeSpinner(80, 316, 3);
-            var lblColsB = new Label { Text = "Столбцов", Font = AppTheme.LabelFont, ForeColor = AppTheme.TextMuted, AutoSize = true, Location = new Point(150, 320), BackColor = Color.Transparent };
-            _numMatrixColsB = MakeSpinner(230, 316, 3);
+            var lblRowsB = AppTheme.MakeFieldLabel("Строк:", GridBLeft, 56);
+            _numRowsB = AppTheme.MakeSpinner(GridBLeft + 68, 50, 3);
+            var lblColsB = AppTheme.MakeFieldLabel("Столбцов:", GridBLeft + 148, 56);
+            _numColsB = AppTheme.MakeSpinner(GridBLeft + 238, 50, 3);
 
-            _numMatrixRowsB.ValueChanged += (s, e) => ResizeGrid(_dgvMatrixB, (int)_numMatrixRowsB.Value, (int)_numMatrixColsB.Value);
-            _numMatrixColsB.ValueChanged += (s, e) => ResizeGrid(_dgvMatrixB, (int)_numMatrixRowsB.Value, (int)_numMatrixColsB.Value);
+            _numRowsB.ValueChanged += (s, e) => ResizeGrid(_dgvB, (int)_numRowsB.Value, (int)_numColsB.Value);
+            _numColsB.ValueChanged += (s, e) => ResizeGrid(_dgvB, (int)_numRowsB.Value, (int)_numColsB.Value);
 
-            // ── Grid B ──────────────────────────────────────────────────────────
-            _dgvMatrixB = CreateGrid(24, 352, 3, 3);
+            _dgvB = CreateGrid(GridBLeft, GridTop, 3, 3);
+
+            // Operator label between grids
+            var vsLabel = new Label
+            {
+                Text = "×",
+                Font = new Font("Consolas", 28F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(60, AppTheme.Accent),
+                AutoSize = true,
+                Location = new Point(472, GridTop + 80)
+            };
 
             // ── Operation selector ─────────────────────────────────────────────
-            Controls.Add(AppTheme.MakeSectionLabel("Операция", 440, 20));
+            var lblOp = AppTheme.MakeSectionLabel("Операция", GridALeft, ControlsY);
 
-            _cbMatrixOp = new ComboBox
+            _cbOp = new ComboBox
             {
-                Location = new Point(440, 50),
-                Width = 340,
+                Location = new Point(GridALeft, ControlsY + 24),
+                Width = 420,
+                Height = AppTheme.InputH,
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 BackColor = AppTheme.InputBg,
                 ForeColor = AppTheme.TextPrimary,
                 Font = AppTheme.MonoFont,
                 FlatStyle = FlatStyle.Flat
             };
-            _cbMatrixOp.Items.AddRange(new object[] {
-                "Сложение        A + B",
-                "Вычитание       A − B",
-                "Умножение       A × B",
+            _cbOp.Items.AddRange(new object[] {
+                "Сложение          A + B",
+                "Вычитание         A − B",
+                "Умножение         A × B",
                 "Транспонирование  Aᵀ",
-                "Определитель    det(A)",
-                "Обратная матрица A⁻¹",
-                "Ранг            rank(A)"
+                "Определитель      det(A)",
+                "Обратная матрица  A⁻¹",
+                "Ранг              rank(A)"
             });
-            _cbMatrixOp.SelectedIndex = 0;
+            _cbOp.SelectedIndex = 0;
 
-            _btnCalcMatrix = AppTheme.MakePrimaryButton("▶  ВЫЧИСЛИТЬ", 440, 100, 340, 44);
-            _btnCalcMatrix.Click += BtnCalcMatrix_Click;
+            _btnCalc = AppTheme.MakePrimaryButton("▶  ВЫЧИСЛИТЬ", GridALeft, ControlsY + 68, 420, 44);
+            _btnCalc.Click += BtnCalc_Click;
 
-            // ── Result ─────────────────────────────────────────────────────────
-            _resultCard = AppTheme.MakeCard(440, 160, 780, 520, "Результат");
-            _txtMatrixResult = AppTheme.MakeResultBox(12, 30, 754, 476);
-            _resultCard.Controls.Add(_txtMatrixResult);
+            // ── Tip labels ─────────────────────────────────────────────────────
+            var tipLabel = new Label
+            {
+                Text = "Для Aᵀ, det(A), A⁻¹, rank(A) используется только матрица A",
+                Font = new Font("Segoe UI", 8.5F, FontStyle.Italic),
+                ForeColor = AppTheme.TextMuted,
+                AutoSize = true,
+                Location = new Point(GridALeft, ControlsY + 120)
+            };
+
+            // ── Result card ────────────────────────────────────────────────────
+            _resultCard = AppTheme.MakeCard(GridALeft, ControlsY + 148, 960, 340, "Результат");
+            _txtResult = AppTheme.MakeResultBox(14, 38, 928, 288);
+            _resultCard.Controls.Add(_txtResult);
 
             Controls.AddRange(new Control[] {
-                lblRowsA, _numMatrixRowsA, lblColsA, _numMatrixColsA,
-                _dgvMatrixA,
-                lblRowsB, _numMatrixRowsB, lblColsB, _numMatrixColsB,
-                _dgvMatrixB,
-                _cbMatrixOp, _btnCalcMatrix, _resultCard
+                lblA, lblRowsA, _numRowsA, lblColsA, _numColsA,
+                lblB, lblRowsB, _numRowsB, lblColsB, _numColsB,
+                _dgvA, vsLabel, _dgvB,
+                lblOp, _cbOp, _btnCalc, tipLabel, _resultCard
             });
-        }
-
-        private NumericUpDown MakeSpinner(int x, int y, int val)
-        {
-            return new NumericUpDown
-            {
-                Location = new Point(x, y),
-                Width = 52,
-                Minimum = 1,
-                Maximum = 10,
-                Value = val,
-                BackColor = AppTheme.InputBg,
-                ForeColor = AppTheme.TextPrimary,
-                Font = AppTheme.MonoFont,
-                BorderStyle = BorderStyle.FixedSingle
-            };
         }
 
         private DataGridView CreateGrid(int x, int y, int rows, int cols)
@@ -114,8 +127,6 @@ namespace MatrixCalculator.UI
             var dgv = new DataGridView
             {
                 Location = new Point(x, y),
-                Width = cols * 62 + 40,
-                Height = rows * 28 + 30,
                 AllowUserToAddRows = false,
                 RowHeadersVisible = true,
                 ColumnHeadersVisible = true,
@@ -125,16 +136,26 @@ namespace MatrixCalculator.UI
             for (int i = 0; i < cols; i++)
                 dgv.Columns.Add(new DataGridViewTextBoxColumn
                 {
-                    HeaderText = $"{(char)('a' + i)}",
-                    Width = 58,
+                    HeaderText = $"col {i + 1}",
+                    Width = AppTheme.ColWidth,
                     SortMode = DataGridViewColumnSortMode.NotSortable
                 });
 
             for (int i = 0; i < rows; i++)
+            {
                 dgv.Rows.Add();
+                dgv.Rows[i].HeaderCell.Value = $"r{i + 1}";
+            }
 
+            ApplyGridSize(dgv, rows, cols);
             AppTheme.StyleGrid(dgv);
             return dgv;
+        }
+
+        private void ApplyGridSize(DataGridView dgv, int rows, int cols)
+        {
+            dgv.Width = cols * AppTheme.ColWidth + dgv.RowHeadersWidth + 4;
+            dgv.Height = rows * AppTheme.RowHeight + dgv.ColumnHeadersHeight + 4;
         }
 
         private void ResizeGrid(DataGridView dgv, int rows, int cols)
@@ -142,61 +163,69 @@ namespace MatrixCalculator.UI
             dgv.Rows.Clear();
             dgv.Columns.Clear();
             for (int i = 0; i < cols; i++)
-                dgv.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = $"{(char)('a' + i)}", Width = 58, SortMode = DataGridViewColumnSortMode.NotSortable });
+                dgv.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    HeaderText = $"col {i + 1}",
+                    Width = AppTheme.ColWidth,
+                    SortMode = DataGridViewColumnSortMode.NotSortable
+                });
             for (int i = 0; i < rows; i++)
+            {
                 dgv.Rows.Add();
-
-            dgv.Width = cols * 62 + 40;
-            dgv.Height = rows * 28 + 30;
+                dgv.Rows[i].HeaderCell.Value = $"r{i + 1}";
+            }
+            ApplyGridSize(dgv, rows, cols);
         }
 
-        private void BtnCalcMatrix_Click(object? sender, EventArgs e)
+        private void BtnCalc_Click(object? sender, EventArgs e)
         {
             try
             {
-                var mA = GetMatrixFromGrid(_dgvMatrixA);
-                var mB = GetMatrixFromGrid(_dgvMatrixB);
-                string op = _cbMatrixOp.SelectedItem?.ToString()?.Trim() ?? "";
-                Matrix res;
-                string msg = "";
+                var mA = GetMatrix(_dgvA);
+                var mB = GetMatrix(_dgvB);
+                string op = _cbOp.SelectedItem?.ToString()?.Trim() ?? "";
 
-                if (op.StartsWith("Сложение"))       { res = mA + mB; msg = FormatMatrix(res); }
-                else if (op.StartsWith("Вычитание"))  { res = mA - mB; msg = FormatMatrix(res); }
-                else if (op.StartsWith("Умножение"))  { res = mA * mB; msg = FormatMatrix(res); }
-                else if (op.StartsWith("Транспон"))   { msg = FormatMatrix(mA.Transpose()); }
-                else if (op.StartsWith("Определитель")) { msg = $"det(A)  =  {mA.Determinant():F6}"; }
+                string msg;
+                if (op.StartsWith("Сложение")) msg = FormatMatrix(mA + mB);
+                else if (op.StartsWith("Вычитание")) msg = FormatMatrix(mA - mB);
+                else if (op.StartsWith("Умножение")) msg = FormatMatrix(mA * mB);
+                else if (op.StartsWith("Транспон")) msg = FormatMatrix(mA.Transpose());
+                else if (op.StartsWith("Определитель")) msg = $"det(A)  =  {mA.Determinant():F8}";
                 else if (op.StartsWith("Обратная"))
                 {
                     if (Math.Abs(mA.Determinant()) < 1e-9)
                         msg = "⚠  Матрица вырождена — обратной не существует.";
-                    else msg = FormatMatrix(mA.Inverse());
+                    else
+                        msg = FormatMatrix(mA.Inverse());
                 }
-                else if (op.StartsWith("Ранг"))       { msg = $"rank(A)  =  {mA.Rank()}"; }
+                else if (op.StartsWith("Ранг")) msg = $"rank(A)  =  {mA.Rank()}";
+                else msg = "Выберите операцию";
 
-                _txtMatrixResult.ForeColor = AppTheme.Accent;
-                _txtMatrixResult.Text = msg;
+                _txtResult.ForeColor = AppTheme.Accent;
+                _txtResult.Text = msg;
             }
             catch (Exception ex)
             {
-                _txtMatrixResult.ForeColor = AppTheme.Danger;
-                _txtMatrixResult.Text = "⚠  " + ex.Message;
+                _txtResult.ForeColor = AppTheme.Danger;
+                _txtResult.Text = "⚠  " + ex.Message;
             }
         }
 
         private string FormatMatrix(Matrix m)
         {
             var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"  Размер: {m.Rows} × {m.Cols}\n");
             for (int i = 0; i < m.Rows; i++)
             {
                 sb.Append("│");
                 for (int j = 0; j < m.Cols; j++)
-                    sb.Append($"  {m[i, j],9:F4}");
+                    sb.Append($"  {m[i, j],10:F4}");
                 sb.AppendLine("  │");
             }
             return sb.ToString();
         }
 
-        private Matrix GetMatrixFromGrid(DataGridView dgv)
+        private Matrix GetMatrix(DataGridView dgv)
         {
             int r = dgv.Rows.Count, c = dgv.Columns.Count;
             var m = new Matrix(r, c);
@@ -205,7 +234,5 @@ namespace MatrixCalculator.UI
                     m[i, j] = double.Parse(dgv.Rows[i].Cells[j].Value?.ToString() ?? "0");
             return m;
         }
-
-        public event Func<Matrix, Matrix, string, string>? CalculationRequested;
     }
 }

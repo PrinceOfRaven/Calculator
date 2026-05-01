@@ -1,0 +1,17 @@
+E:\VSProjects\MatrixCalculator\Calculator\bin\Debug\net8.0-windows\MatrixCalculator.exe
+E:\VSProjects\MatrixCalculator\Calculator\bin\Debug\net8.0-windows\MatrixCalculator.deps.json
+E:\VSProjects\MatrixCalculator\Calculator\bin\Debug\net8.0-windows\MatrixCalculator.runtimeconfig.json
+E:\VSProjects\MatrixCalculator\Calculator\bin\Debug\net8.0-windows\MatrixCalculator.dll
+E:\VSProjects\MatrixCalculator\Calculator\bin\Debug\net8.0-windows\MatrixCalculator.pdb
+E:\VSProjects\MatrixCalculator\Calculator\obj\Debug\net8.0-windows\MatrixCalculator.UI.MainForm.resources
+E:\VSProjects\MatrixCalculator\Calculator\obj\Debug\net8.0-windows\Calculator.csproj.GenerateResource.cache
+E:\VSProjects\MatrixCalculator\Calculator\obj\Debug\net8.0-windows\Calculator.GeneratedMSBuildEditorConfig.editorconfig
+E:\VSProjects\MatrixCalculator\Calculator\obj\Debug\net8.0-windows\Calculator.AssemblyInfoInputs.cache
+E:\VSProjects\MatrixCalculator\Calculator\obj\Debug\net8.0-windows\Calculator.AssemblyInfo.cs
+E:\VSProjects\MatrixCalculator\Calculator\obj\Debug\net8.0-windows\Calculator.csproj.CoreCompileInputs.cache
+E:\VSProjects\MatrixCalculator\Calculator\obj\Debug\net8.0-windows\Calculator.sourcelink.json
+E:\VSProjects\MatrixCalculator\Calculator\obj\Debug\net8.0-windows\MatrixCalculator.dll
+E:\VSProjects\MatrixCalculator\Calculator\obj\Debug\net8.0-windows\refint\MatrixCalculator.dll
+E:\VSProjects\MatrixCalculator\Calculator\obj\Debug\net8.0-windows\MatrixCalculator.pdb
+E:\VSProjects\MatrixCalculator\Calculator\obj\Debug\net8.0-windows\Calculator.genruntimeconfig.cache
+E:\VSProjects\MatrixCalculator\Calculator\obj\Debug\net8.0-windows\ref\MatrixCalculator.dll
